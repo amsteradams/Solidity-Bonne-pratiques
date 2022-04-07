@@ -28,7 +28,7 @@ Un oracle est un service utilisé par un smart contract pour acceder à des donn
 * Choisir un Oracle trustable
 * Vérifier les informations de l'oracle quand même 
 * Utiliser des plusieurs Oracles peut être une solution (pas d'oeufs dans le même panier)
-Pour les Oracles qui apportent de la donnée sur des prix :
+- Pour les Oracles qui apportent de la donnée sur des prix :
 * Preferer l'utilisation de moyennes de prix sur une periode avec plusieurs sources
 
 - Spot price manipulation : 
@@ -47,4 +47,58 @@ Un oracle centralisé peut être le fait d'integrer par exemple 'à la main' une
 
 Un oracle décentralisé peut piocher ses information d'une multitude de sources, cela rend très compliqué pour un pirate de fausser les données. Par contre il faut que le système (recompense des gens qui soumettent la données chez l'oracle par ex) soit fait d'une telle manière que les utilisateurs ne soient pas tentés de soummettre de la donnée faussée.
 
+## FrontRunning : 
 
+**Explications**
+
+Lorsqu'une transaction est crée, elle est envoyée dans le mempool. A ce moment elle est visible par les mineurs qui peuvent decider de faire passer leurs transaction avant.
+
+**S'en prémunir**
+
+Pour l'éviter il faut essayer au maximum de verifier et limiter qui a le droit de lancer la fonction quand possible. Eviter aussi l'interêt de temps (qu'une transaction ait un interêt à passer avant une autre).
+
+## TimeStamp dependance : 
+
+**Explication**
+
+La faille consiste pour un smart contract d'utiliser le timeStamp pour generer un nombre aleatoire, ou un nombre qui pourrait avantager une partie. Il y a un timestamp produit toutes les 15 sec (minage d'un bloc) et d'une part, le timeStamp est visible de tous, mais il peut aussi être manipulé par un mineur pour avoir le bon timeStamp
+
+**S'en prémunir**
+
+Préferer l'utilisation d'un oracle pour obtenir un aleatoire ou du temps.
+
+## Insecure Arithmetic : 
+
+Obselete depuis 0.8;
+
+## Denial of Service : 
+
+* DOS with require : 
+
+**Explications**
+
+Si par exemple  nous avons un contrat de vente aux enchere. Dans la fonction pour miser, on enregistre la plus grande enchere et on rembourse le dernier encherisseur et on require qu'il soit bien remboursé. Seulement si le dernier encherisseur est un smart contract qui n'a pas de fallback ou receive, le contrat sera bloqué et ne pourra jamais finir sa fonction mise() car le require ne passera jamais puisque l'envoi ne se fera jamais. Et personne ne pourra remiser puisque le dernier echerisseur ne pourra jamais être payé.
+
+
+**S'en prémunir :**
+
+Pour ce cas, il faudrait enregistrer dans un mapping le refund auquel chaque user a droit si sa mise est dépassé par une autre et créer une autre fonction que l'user appelera lui même pour se faire refund.
+
+**Autre exemple**
+
+Aussi pour un contrat auction, si le refund loop sur les biders (on require que l'envoie est bien fait à chaque tour) et qu'un des biders est un contrat qui ne possede pas de fallback, tous les refunds seront revert.
+
+* DOS with gas Limit : 
+
+**Explications**
+
+Supposons que dans notre smart contract nous avons un tableau, et ce tableau peut être rempli de quelque chose par n'importe quel user sans limites. Si nous avons aussi dans une des fonctions de notre contrat une loop qui parcourt ce tableau, un utilisateur malveillant pourrait envoyer des millions de trucs dans notre tableau (puisqu'il n'y a pas de limite), et du coup notre fonction qui loop couterait + de 15 millions de gas pour louper notre gigantesque tableau et la fonction reverterait automatiquement.
+
+**S'en prémunir :**
+
+Ne pas laisser de tableau settables par n'importe qui sans limites, limiter la taille du tableau, limiter la loop etc...
+
+
+
+
+**source : https://consensys.github.io/smart-contract-best-practices/attacks/denial-of-service/**
