@@ -98,6 +98,12 @@ Supposons que dans notre smart contract nous avons un tableau, et ce tableau peu
 
 Ne pas laisser de tableau settables par n'importe qui sans limites, limiter la taille du tableau, limiter la loop etc...
 
+## Force Feeding : 
+
+**Explications**
+
+Jusqu'à présent on pensait qu'il était impossible pour un contrat de recevoir des fonds si il n'avait pas de receive ou fallback. Seulement il est possible lorsqu'on utilise selfDestruct sur un contrat avec comme parametre un autre contrat de lui envoyer tous les fonds du contrat à detruire
+Cela peut poser problème sur des contrats qui n'ont pas prévu cette possibilité.
 
 
 
